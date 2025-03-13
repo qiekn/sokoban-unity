@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3989009761233921611}
   - component: {fileID: -1881309512769878083}
   - component: {fileID: 3197420130624363927}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Wall
   m_TagString: Wall
   m_Icon: {fileID: 0}
@@ -101,8 +101,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8a243c4f70ba4b3e9144b73e5b1000f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  x_: 0
-  y_: 0
 --- !u!61 &3197420130624363927
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -147,5 +145,5 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.32, y: 0.32}
+  m_Size: {x: 0.2, y: 0.2}
   m_EdgeRadius: 0

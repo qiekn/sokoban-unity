@@ -2,9 +2,11 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour {
     GridPos gridPos;
+    LayerMask layerMask;
 
     void Start() {
         gridPos = GetComponent<GridPos>();
+        layerMask = LayerMask.GetMask("Interact");
     }
 
     void Update() {
@@ -25,13 +27,15 @@ public class PlayerMovement : MonoBehaviour {
             bool canMove;
 
             // collision detection
-            Collider2D hit = Physics2D.OverlapPoint(newPos);
+            Collider2D hit = Physics2D.OverlapPoint(newPos, layerMask);
             if (hit != null) {
                 Debug.Log("player try push: " + (gridPos.GetPosition() + new Vector2Int(dx, dy)));
                 if (hit.TryGetComponent<IPushable>(out var obstacle))
                     canMove = obstacle.OnPushed(new Vector2Int(dx, dy));
-                else
+                else {
                     canMove = false;
+                    Debug.Log("player cant push");
+                }
             } else {
                 canMove = true; // no obstacle
             }

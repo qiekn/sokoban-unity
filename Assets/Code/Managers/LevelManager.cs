@@ -33,9 +33,9 @@ public class LevelManager : MonoBehaviour {
     */
     private readonly string[] levelData = new string[] {
         "#########",
-        "#P....*0#",
         "#.......#",
-        "#.......#",
+        "#.P.....#",
+        "#..*.0..#",
         "#.......#",
         "#########",
     };
