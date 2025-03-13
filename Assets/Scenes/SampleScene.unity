@@ -372,6 +372,7 @@ MonoBehaviour:
   wallPrefab: {fileID: 845881114078141851, guid: f86a56109ec9940c08f0963d0c6b6e39, type: 3}
   playerPrefab: {fileID: 6963324916152961259, guid: b2a3a8cb316d54f85bc58967d5865123, type: 3}
   boxPrefab: {fileID: 5328556767348091829, guid: 72282c4856e17418d8ebea8636811fd3, type: 3}
+  ballPrefab: {fileID: 2793203515276409983, guid: 380ba4f94a64246fd9a221dab6c7726e, type: 3}
   targetPrefab: {fileID: 7572419952682851076, guid: 988b68ab68e21493eb831831e6f6353d, type: 3}
 --- !u!4 &1141398283
 Transform:

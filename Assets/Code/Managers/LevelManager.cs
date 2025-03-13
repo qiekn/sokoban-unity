@@ -5,6 +5,7 @@ public class LevelManager : MonoBehaviour {
     [SerializeField] private GameObject wallPrefab;
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private GameObject boxPrefab;
+    [SerializeField] private GameObject ballPrefab;
     [SerializeField] private GameObject targetPrefab;
 
     public static LevelManager instance;
@@ -34,7 +35,7 @@ public class LevelManager : MonoBehaviour {
     private readonly string[] levelData = new string[] {
         "#########",
         "#.......#",
-        "#.P.....#",
+        "#.P..B..#",
         "#..*.0..#",
         "#.......#",
         "#########",
@@ -53,11 +54,14 @@ public class LevelManager : MonoBehaviour {
                     case 'P':
                         obj = Instantiate(playerPrefab);
                         break;
-                    case '*':
+                    case '*': // Box (Classic)
                         obj = Instantiate(boxPrefab);
                         break;
                     case '0':
                         obj = Instantiate(targetPrefab);
+                        break;
+                    case 'B': // Ball
+                        obj = Instantiate(ballPrefab);
                         break;
                 }
                 if (obj != null) {
