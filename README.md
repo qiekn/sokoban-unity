@@ -1,3 +1,4 @@
+<!-- markdownlint-disable MD026 MD033 -->
 # Sokoban!
 
 ![v0 1 0](https://github.com/user-attachments/assets/41fca0ff-708b-4dd3-afb9-a564141d6d99)
