@@ -12,8 +12,7 @@
 
 <details>
   <summary>Features Todo</summary>
-  - [ ] [ENIGMASH by Jack Lance](https://jacklance.github.io/PuzzleScript/play.html?p=cfdcc6e23f1fb3e9de2fd42fafaf4d4c)
+
+- [ ] [ENIGMASH by Jack Lance](https://jacklance.github.io/PuzzleScript/play.html?p=cfdcc6e23f1fb3e9de2fd42fafaf4d4c)
+
 </details>
-
-
-  
