@@ -1,7 +1,8 @@
 using System;
 using UnityEngine;
+using UnityEngine.UI;
 
-namespace qiekn.lenrn_editor {
+namespace qiekn.learn_editor {
     public class CameraMove : MonoBehaviour {
 
         [SerializeField] Slider cameraSpeedSlide;
@@ -17,7 +18,7 @@ namespace qiekn.lenrn_editor {
         }
 
         void Update() {
-            if (ms.saveLoadMenuOpen() == false) {
+            if (ms.saveLoadMenuOpen == false) {
                 xAxis = Input.GetAxis("Horizontal");
                 yAxis = Input.GetAxis("Vertical");
                 zoom = Input.GetAxis("Mouse ScrollWheel") * 10;

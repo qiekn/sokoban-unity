@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace qiekn.learn_editor {
     public class EditorObject : MonoBehaviour {
-        public enum ObjectType { Dog, Cat, Snake };
+        public enum ObjectType { Cylinder, Cube, Sphere, Player };
 
         [Serializable]
         public struct Data {
