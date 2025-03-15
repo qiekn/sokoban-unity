@@ -4,9 +4,6 @@ using UnityEngine.UI;
 
 namespace qiekn.learn_editor {
     public class ManagerScript : MonoBehaviour {
-        // Hide these variables from Unity editor.
-        [HideInInspector]
-        public bool playerPlaced = false;
         [HideInInspector]
         public bool saveLoadMenuOpen = false;
 
@@ -14,11 +11,8 @@ namespace qiekn.learn_editor {
         public Animator optionUIAnimation;
         public Animator saveUIAnimation;
         public Animator loadUIAnimation;
-        public MeshFilter mouseObject;
+        public SpriteRenderer mouseObject;
         public MouseScript user;
-        public Mesh playerMarker;
-        public Slider rotSlider;
-        public GameObject rotUI;
         public InputField levelNameSave;
         public InputField levelNameLoad;
         public Text levelMessage;
@@ -27,29 +21,25 @@ namespace qiekn.learn_editor {
         private bool itemPositionIn = true;
         private bool optionPositionIn = true;
         private bool saveLoadPositionIn = false;
-        private LevelEditor level;
+        private LevelData levelData;
+        LayerMask layerMask;
+
+        void Awake() {
+            TileSprites.LoadSprites();
+        }
 
 
-        // Start is called before the first frame update
         void Start() {
-            rotSlider.onValueChanged.AddListener(delegate { RotationValueChange(); }); // set up listener for rotation slider value change
+            layerMask = LayerMask.GetMask("Editor");
             CreateEditor(); // create new instance of level.
         }
 
-        LevelEditor CreateEditor() {
-            level = gameObject.AddComponent<LevelEditor>();
-            return level;
+        LevelData CreateEditor() {
+            levelData = gameObject.AddComponent<LevelData>();
+            return levelData;
         }
 
-        //Rotating an object and saving the info
-        void RotationValueChange() {
-            user.rotObject.transform.localEulerAngles = new Vector3(0, rotSlider.value, 0); // rotate the object.
-            user.rotObject.GetComponent<EditorObject>().data.rot = user.rotObject.transform.rotation; // save rotation info to object's editor object data.
-        }
-
-        /// <summary>
-        /// Selecting certain menus
-        /// </summary>
+        // selecting certain menus
         public void SlideItemMenu() {
             if (itemPositionIn == false) {
                 itemUIAnimation.SetTrigger("ItemMenuIn"); // slide menu into screen
@@ -71,6 +61,7 @@ namespace qiekn.learn_editor {
         }
 
         public void ChooseSave() {
+            Debug.Log("choose save");
             if (saveLoadPositionIn == false) {
                 saveUIAnimation.SetTrigger("SaveLoadIn"); // slide menu into screen
                 saveLoadPositionIn = true; // indicate menu on screen
@@ -83,6 +74,7 @@ namespace qiekn.learn_editor {
         }
 
         public void ChooseLoad() {
+            Debug.Log("choose load");
             if (saveLoadPositionIn == false) {
                 loadUIAnimation.SetTrigger("SaveLoadIn"); // slide menu into screen
                 saveLoadPositionIn = true; // indicate menu on screen
@@ -95,103 +87,82 @@ namespace qiekn.learn_editor {
         }
 
 
-        /// <summary>
-        /// Choosing an object
-        /// </summary>
-        public void ChooseCylinder() {
-            user.itemOption = MouseScript.ItemList.Cylinder; // set object to place as cylinder
-            GameObject cylinder = GameObject.CreatePrimitive(PrimitiveType.Cylinder); // create object, get new object's mesh and set mouse object's mesh to that, then destroy
-            mouseObject.mesh = cylinder.GetComponent<MeshFilter>().mesh;
-            Destroy(cylinder);
+        // choosing an object
+        public void ChooseShape1() {
+            user.item = MouseScript.Item.Shape1; // set object to place as cylinder
+            mouseObject.sprite = TileSprites.shape1;
         }
 
-        public void ChooseCube() {
-            user.itemOption = MouseScript.ItemList.Cube; // set object to place as cube
-            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube); // create object, get new object's mesh and set mouse object's mesh to that, then destroy
-            mouseObject.mesh = cube.GetComponent<MeshFilter>().mesh;
-            Destroy(cube);
+        public void ChooseShape2() {
+            user.item = MouseScript.Item.Shape2;
+            mouseObject.sprite = TileSprites.shape2;
         }
 
-        public void ChooseSphere() {
-            user.itemOption = MouseScript.ItemList.Sphere; // set object to place as sphere
-            GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere); // create object, get new object's mesh and set mouse object's mesh to that, then destroy
-            mouseObject.mesh = sphere.GetComponent<MeshFilter>().mesh;
-            Destroy(sphere);
+        public void ChooseShape3() {
+            user.item = MouseScript.Item.Shape3;
+            mouseObject.sprite = TileSprites.shape3;
         }
 
-        public void ChoosePlayerStart() {
-            user.itemOption = MouseScript.ItemList.Player; // set object to place as player marker
-            mouseObject.mesh = playerMarker; // set mouse object's mesh to playerMarker (player object mesh).
+        public void ChooseShape4() {
+            user.item = MouseScript.Item.Shape4;
+            mouseObject.sprite = TileSprites.shape4;
         }
 
 
-        /// <summary>
-        /// Choosing an option for level manipulation
-        /// </summary>
+        // choosing a command
         public void ChooseCreate() {
-            user.manipulateOption = MouseScript.LevelManipulation.Create; // set mode to create
-            user.mr.enabled = true; // show mouse object mesh
-            rotUI.SetActive(false); // disable rotation ui
-        }
-
-        public void ChooseRotate() {
-            user.manipulateOption = MouseScript.LevelManipulation.Rotate; // set mode to rotate
-            user.mr.enabled = false; // hide mouse mesh
-            rotUI.SetActive(true); // enable rotation ui
+            user.cmd = MouseScript.Cmd.Create; // set mode to create
+            user.meshRenderer.enabled = true; // show mouse object mesh
         }
 
         public void ChooseDestroy() {
-            user.manipulateOption = MouseScript.LevelManipulation.Destroy; // set mode to destroy
-            user.mr.enabled = false; // hide mouse mesh
-            rotUI.SetActive(false); // disable rotation ui
+            user.cmd = MouseScript.Cmd.Destroy; // set mode to destroy
+            user.meshRenderer.enabled = false; // hide mouse mesh
         }
 
-
-
-        // Saving a level
+        // save a level
         public void SaveLevel() {
-            // Gather all objects with EditorObject component
-            EditorObject[] foundObjects = FindObjectsByType<EditorObject>(FindObjectsSortMode.None);
-            foreach (EditorObject obj in foundObjects)
-                level.editorObjects.Add(obj.data); // add these objects to the list of editor objects
+            // gather all objects with Tile component
+            Tile[] tiles = FindObjectsByType<Tile>(FindObjectsSortMode.None);
+            foreach (var t in tiles)
+                levelData.Tiles.Add(t.data);
 
-            string json = JsonUtility.ToJson(level); // write the level data to json
+            string json = JsonUtility.ToJson(levelData); // write the level data to json
             string folder = Application.dataPath + "/LevelData/"; // create a folder
-            string levelFile;
 
-            //set a default file name if no name given
+            // file name
+            string fileName;
             if (levelNameSave.text == "")
-                levelFile = "new_level.json";
+                fileName = "new_level.json";
             else
-                levelFile = levelNameSave.text + ".json";
+                fileName = levelNameSave.text + ".json";
 
-            //Create new directory if LevelData directory does not yet exist.
+            // create if not exist
             if (!Directory.Exists(folder))
                 Directory.CreateDirectory(folder);
 
-            string path = Path.Combine(folder, levelFile); // set filepath
+            string path = Path.Combine(folder, fileName); // set filepath
 
-            //Overwrite file with same name, if applicable
+            // overwrite file with same name, if applicable
             if (File.Exists(path))
                 File.Delete(path);
 
             // create and save file
             File.WriteAllText(path, json);
 
-            //Remove save menu
+            // remove save menu
             saveUIAnimation.SetTrigger("SaveLoadOut");
             saveLoadPositionIn = false;
             saveLoadMenuOpen = false;
             levelNameSave.text = ""; // clear input field
             levelNameSave.DeactivateInputField(); // remove focus from input field.
 
-            //Display message
-            levelMessage.text = levelFile + " saved to LevelData folder.";
+            // display message
+            levelMessage.text = fileName + " saved to LevelData folder.";
             messageAnim.Play("MessageFade", 0, 0);
         }
 
-
-        // Loading a level
+        // load a level
         public void LoadLevel() {
             string folder = Application.dataPath + "/LevelData/";
             string levelFile;
@@ -207,14 +178,12 @@ namespace qiekn.learn_editor {
             if (File.Exists(path)) // if the file could be found in LevelData
             {
                 // The objects currently in the level will be deleted
-                EditorObject[] foundObjects = FindObjectsByType<EditorObject>(FindObjectsSortMode.None);
-                foreach (EditorObject obj in foundObjects)
+                Tile[] foundObjects = FindObjectsByType<Tile>(FindObjectsSortMode.None);
+                foreach (Tile obj in foundObjects)
                     Destroy(obj.gameObject);
 
-                playerPlaced = false; // since objects are being destroyed, go ahead and say player placed is false
-
                 string json = File.ReadAllText(path); // provide text from json file
-                level = JsonUtility.FromJson<LevelEditor>(json); // level information filled from json file
+                levelData = JsonUtility.FromJson<LevelData>(json); // level information filled from json file
                 CreateFromFile(); // create objects from level data.
             } else // if file could not be found.
               {
@@ -229,58 +198,39 @@ namespace qiekn.learn_editor {
 
         // create objects based on data within level.
         void CreateFromFile() {
-            GameObject newObj; // make a new object.
+            for (int i = 0; i < levelData.Tiles.Count; i++) {
 
-            for (int i = 0; i < level.editorObjects.Count; i++) {
-                if (level.editorObjects[i].objectType == EditorObject.ObjectType.Cylinder) // if a cylinder object
-                {
-                    // create cylinder
-                    newObj = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-                    newObj.transform.SetPositionAndRotation(level.editorObjects[i].pos, level.editorObjects[i].rot);
-                    newObj.layer = 9; // assign to SpawnedObjects layer.
 
-                    //Add editor object component and feed data.
-                    EditorObject eo = newObj.AddComponent<EditorObject>();
-                    eo.data.pos = newObj.transform.position;
-                    eo.data.rot = newObj.transform.rotation;
-                    eo.data.objectType = EditorObject.ObjectType.Cylinder;
-                } else if (level.editorObjects[i].objectType == EditorObject.ObjectType.Cube) {
-                    // create cube
-                    newObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    newObj.transform.SetPositionAndRotation(level.editorObjects[i].pos, level.editorObjects[i].rot);
-                    newObj.layer = 9; // assign to SpawnedObjects layer.
+                /*───────────────────────────┐
+                │ create use for/switch loop │
+                └────────────────────────────*/
+                /*
+                 * sprite
+                 * obj -> tile -> data
+                 */
 
-                    //Add editor object component and feed data.
-                    EditorObject eo = newObj.AddComponent<EditorObject>();
-                    eo.data.pos = newObj.transform.position;
-                    eo.data.rot = newObj.transform.rotation;
-                    eo.data.objectType = EditorObject.ObjectType.Cube;
-                } else if (level.editorObjects[i].objectType == EditorObject.ObjectType.Sphere) {
-                    // create sphere
-                    newObj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                    newObj.transform.SetPositionAndRotation(level.editorObjects[i].pos, level.editorObjects[i].rot);
-                    newObj.layer = 9; // assign to SpawnedObjects layer.
+                var tileData = levelData.Tiles[i];
 
-                    //Add editor object component and feed data.
-                    EditorObject eo = newObj.AddComponent<EditorObject>();
-                    eo.data.pos = newObj.transform.position;
-                    eo.data.rot = newObj.transform.rotation;
-                    eo.data.objectType = EditorObject.ObjectType.Sphere;
-                } else if (level.editorObjects[i].objectType == EditorObject.ObjectType.Player) {
-                    // create player marker
-                    newObj = Instantiate(user.Player, transform.position, Quaternion.identity);
-                    newObj.layer = 9; // assign to SpawnedObjects layer.
-                    newObj.AddComponent<CapsuleCollider>(); // make capsule collider component
-                    newObj.GetComponent<CapsuleCollider>().center = new Vector3(0, 1, 0);
-                    newObj.GetComponent<CapsuleCollider>().height = 2;
-                    newObj.transform.SetPositionAndRotation(level.editorObjects[i].pos, level.editorObjects[i].rot);
-                    playerPlaced = true;
+                var sprite = tileData.type switch {
+                    Tile.Type.Shape1 => TileSprites.shape1,
+                    Tile.Type.Shape2 => TileSprites.shape2,
+                    Tile.Type.Shape3 => TileSprites.shape3,
+                    Tile.Type.Shape4 => TileSprites.shape4,
+                    _ => null
+                };
 
-                    //Add editor object component and feed data.
-                    EditorObject eo = newObj.AddComponent<EditorObject>();
-                    eo.data.pos = newObj.transform.position;
-                    eo.data.rot = newObj.transform.rotation;
-                    eo.data.objectType = EditorObject.ObjectType.Player;
+                /* TODO: use switch <2025-03-15 12:09, @qiekn> */
+                // shape 1
+                if (levelData.Tiles[i].type == Tile.Type.Shape1) {
+                    var obj = new GameObject(tileData.type.ToString());
+                    var spriteRenderer = obj.AddComponent<SpriteRenderer>();
+                    var tile = obj.AddComponent<Tile>();
+
+                    obj.transform.position = tile.data.pos;
+                    obj.layer = layerMask;
+                    spriteRenderer.sprite = sprite;
+                    tile.data.pos = obj.transform.position;
+                    tile.data.type = tileData.type;
                 }
             }
 
@@ -298,3 +248,4 @@ namespace qiekn.learn_editor {
         }
     }
 }
+

@@ -5,35 +5,40 @@ using UnityEngine.UI;
 namespace qiekn.learn_editor {
     public class CameraMove : MonoBehaviour {
 
-        [SerializeField] Slider cameraSpeedSlide;
+        [SerializeField] Slider speed; // camera speed slider
         [SerializeField] ManagerScript ms;
+        [SerializeField] float clampSize = 20f;
 
         float xAxis;
         float yAxis;
-        float zoom;
-        Camera cam;
+        // float zoom;
+        // Camera cam;
 
         void Start() {
-            cam = GetComponent<Camera>();
+            // cam = GetComponent<Camera>();
         }
 
         void Update() {
-            if (ms.saveLoadMenuOpen == false) {
+            if (1 == 2) {
+                //if (ms.saveLoadMenuOpen == false) {
                 xAxis = Input.GetAxis("Horizontal");
                 yAxis = Input.GetAxis("Vertical");
-                zoom = Input.GetAxis("Mouse ScrollWheel") * 10;
+                // zoom = Input.GetAxis("Mouse ScrollWheel") * 10;
 
-                transform.Translate(new Vector3(xAxis * -cameraSpeedSlide.value, yAxis * -cameraSpeedSlide.value, 0.0f));
+                transform.Translate(new Vector3(xAxis * -speed.value, yAxis * -speed.value, 0.0f));
                 transform.position = new Vector3(
-                        Math.Clamp(transform.position.x, -20, 20),
-                        Math.Clamp(transform.position.y, -20, 20),
-                        Math.Clamp(transform.position.z, 20, 20));
+                        Math.Clamp(transform.position.x, -clampSize, clampSize),
+                        Math.Clamp(transform.position.y, -clampSize, clampSize));
+
+                /*
                 if (zoom < 0 && cam.orthographicSize >= -25) {
-                    cam.orthographicSize -= zoom * -cameraSpeedSlide.value;
+                    cam.orthographicSize -= zoom * -speed.value;
                 }
+
                 if (zoom > 0 && cam.orthographicSize <= -5) {
-                    cam.orthographicSize += zoom * -cameraSpeedSlide.value;
+                    cam.orthographicSize += zoom * -speed.value;
                 }
+                */
             }
         }
 
