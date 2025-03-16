@@ -5,40 +5,35 @@ using UnityEngine.EventSystems;
 namespace qiekn.learn_editor {
     public class MouseScript : MonoBehaviour {
         public enum Cmd { Create, Destroy };
-        public enum Item { Shape1, Shape2, Shape3, Shape4 };
+        public enum Item { Wall, Box, Player, Point };
 
         [SerializeField] float limit = 30f;
 
         [HideInInspector]
-        public Item item = Item.Shape1; // default item
+        public Item item = Item.Wall; // default item
 
         [HideInInspector]
         public Cmd cmd = Cmd.Create; // default commnad
 
         [HideInInspector]
-        public MeshRenderer meshRenderer;
+        public SpriteRenderer spriteRenderer;
 
-
-        [SerializeField] Material goodPlace;
-        [SerializeField] Material badPlace;
         [SerializeField] ManagerScript ms;
 
-        Vector3 mousePos;
-        bool colliding;
-        Ray ray;
-        RaycastHit hit;
+        [SerializeField] bool colliding;
         LayerMask layerMask;
+        Camera cam;
 
         void Start() {
-            meshRenderer = GetComponent<MeshRenderer>();
+            spriteRenderer = GetComponent<SpriteRenderer>();
             layerMask = LayerMask.GetMask("Editor");
+            cam = Camera.main;
         }
 
         void Update() {
             // Have the object follow the mouse cursor by getting
             // mouse coordinates and converting them to world point.
-            mousePos = Input.mousePosition;
-            mousePos = Camera.main.ScreenToWorldPoint(mousePos);
+            Vector2 mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
 
             // limit object movement
             transform.position = new Vector3(
@@ -46,10 +41,9 @@ namespace qiekn.learn_editor {
                 Mathf.Clamp(mousePos.y, -limit, limit));
 
             // send out raycast to detect objects
-            ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out hit, Mathf.Infinity, layerMask)) {
+            var hit = Physics2D.OverlapPoint(mousePos, layerMask);
+            if (hit != null) {
                 colliding = true;
-                /* TODO: indicator <2025-03-15 12:19, @qiekn> */
             } else {
                 colliding = false;
             }
@@ -60,37 +54,40 @@ namespace qiekn.learn_editor {
                 if (!EventSystem.current.IsPointerOverGameObject()) {
                     if (!colliding && cmd == Cmd.Create) {
                         Create();
-                    } else if (!colliding && cmd == Cmd.Destroy) {
-                        Destroy(hit.collider.gameObject);
+                    } else if (colliding && cmd == Cmd.Destroy) {
+                        Destroy(hit.gameObject);
                     }
                 }
             }
         }
 
         void Create() {
-            Debug.Log("mouse create");
             var sprite = item switch {
-                Item.Shape1 => TileSprites.shape1,
-                Item.Shape2 => TileSprites.shape2,
-                Item.Shape3 => TileSprites.shape3,
-                Item.Shape4 => TileSprites.shape4,
+                Item.Wall => TileSprites.wall,
+                Item.Box => TileSprites.box,
+                Item.Player => TileSprites.player,
+                Item.Point => TileSprites.point,
                 _ => null
             };
 
             if (sprite != null) {
                 Debug.Log("create sprite: " + sprite.ToString());
-                var obj = new GameObject(item.ToString());
-                var spriteRenderer = obj.AddComponent<SpriteRenderer>();
-                var tile = obj.AddComponent<Tile>();
-                Debug.Log("mouse ceate: enum parse: item.ToString->" + item.ToString());
-                var type = (Tile.Type)Enum.Parse(typeof(Tile.Type), item.ToString());
 
-                Debug.Log("mouse create: layer index" + layerMask);
-                obj.layer = 9;
+                var obj = new GameObject(item.ToString()) { layer = 9 };
                 obj.transform.position = transform.position;
+
+                // collider
+                var collider = obj.AddComponent<BoxCollider2D>();
+                collider.size = new Vector2(0.32f, 0.32f);
+
+                // sprite
+                var spriteRenderer = obj.AddComponent<SpriteRenderer>();
                 spriteRenderer.sprite = sprite;
+
+                // meta data
+                var tile = obj.AddComponent<Tile>();
                 tile.data.pos = obj.transform.position;
-                tile.data.type = type;
+                tile.data.type = (Tile.Type)Enum.Parse(typeof(Tile.Type), item.ToString());
             }
         }
     }
