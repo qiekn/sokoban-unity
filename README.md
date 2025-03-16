@@ -6,9 +6,13 @@
 <details>
   <summary>Features Right Now</summary>
   <br>
+
   Level Selector @Mar 14 10:33 AM
-  
   ![level-selector](https://github.com/user-attachments/assets/4814009f-c731-4b14-b924-9e37708f6a22)
+
+  Level Editor @Mar 16 05:30 PM
+  ![level-editor-basic](https://github.com/user-attachments/assets/0d838d43-f66e-4366-ac1a-60ffcf3efcda)
+
 </details>
 
 <details>
